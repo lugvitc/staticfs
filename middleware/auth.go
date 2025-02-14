@@ -5,24 +5,15 @@ import (
 	"github.com/celestix/staticfs/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
 
 func AuthMiddleware(publicKey *ecdsa.PublicKey) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
+		tokenString := c.Query("token")
+		if tokenString == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
 			return
 		}
-
-		// Expected format: "Bearer <token>"
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
-			return
-		}
-		tokenString := parts[1]
 
 		claims, err := utils.VerifyJWT(tokenString, publicKey)
 		if err != nil {
@@ -30,7 +21,7 @@ func AuthMiddleware(publicKey *ecdsa.PublicKey) gin.HandlerFunc {
 			return
 		}
 
-		// Extract route parameters. The route should be defined as "/:team_id/:container_id".
+		// Extract route parameters. The route is "/:team_id/:container_id/*filepath".
 		teamID := c.Param("team_id")
 		containerID := c.Param("container_id")
 
