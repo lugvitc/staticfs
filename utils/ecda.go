@@ -18,7 +18,6 @@ func GenerateKeyPair() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	return privKey, &privKey.PublicKey, nil
 }
 
-// encodePrivateKeyToPEM encodes the ECDSA private key into PEM format.
 func EncodePrivateKeyToPEM(privKey *ecdsa.PrivateKey) ([]byte, error) {
 	privBytes, err := x509.MarshalECPrivateKey(privKey)
 	if err != nil {
@@ -31,8 +30,6 @@ func EncodePrivateKeyToPEM(privKey *ecdsa.PrivateKey) ([]byte, error) {
 	return privPEM, nil
 }
 
-// encodePublicKeyToPEM encodes the ECDSA public key into PEM format.
-// This format is compatible with your loadPublicKey function.
 func EncodePublicKeyToPEM(pubKey *ecdsa.PublicKey) ([]byte, error) {
 	pubBytes, err := x509.MarshalPKIXPublicKey(pubKey)
 	if err != nil {
@@ -43,6 +40,34 @@ func EncodePublicKeyToPEM(pubKey *ecdsa.PublicKey) ([]byte, error) {
 		Bytes: pubBytes,
 	})
 	return pubPEM, nil
+}
+
+func DecodePrivateKeyFromPEM(privPEM []byte) (*ecdsa.PrivateKey, error) {
+	block, _ := pem.Decode(privPEM)
+	if block == nil || block.Type != "EC PRIVATE KEY" {
+		return nil, fmt.Errorf("failed to decode PEM block containing EC private key")
+	}
+	privKey, err := x509.ParseECPrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse EC private key: %w", err)
+	}
+	return privKey, nil
+}
+
+func DecodePublicKeyFromPEM(pubPEM []byte) (*ecdsa.PublicKey, error) {
+	block, _ := pem.Decode(pubPEM)
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("failed to decode PEM block containing public key")
+	}
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %w", err)
+	}
+	pubKey, ok := pubInterface.(*ecdsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("not an ECDSA public key")
+	}
+	return pubKey, nil
 }
 
 // func main() {
