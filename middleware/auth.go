@@ -21,15 +21,8 @@ func AuthMiddleware(publicKey *ecdsa.PublicKey) gin.HandlerFunc {
 			return
 		}
 
-		// Extract route parameters. The route is "/:team_id/:container_id/*filepath".
-		teamID := c.Param("team_id")
-		containerID := c.Param("container_id")
-
-		// Check if the JWT claims match the URL parameters.
-		if claims.Id != teamID || claims.ContainerId != containerID {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			return
-		}
+		c.Set("teamId", claims.Id)
+		c.Set("containerId", claims.ContainerId)
 
 		c.Next()
 	}

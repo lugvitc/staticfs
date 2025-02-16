@@ -45,9 +45,9 @@ func main() {
 	//		log.Fatalf("Error loading private key: %v", err)
 	//	}
 	r.Use(middleware.AuthMiddleware(pubKey))
-	r.GET("/:team_id/:container_id/*filepath", func(c *gin.Context) {
-		teamID := c.Param("team_id")
-		containerID := c.Param("container_id")
+	r.GET("/*filepath", func(c *gin.Context) {
+		teamID := c.MustGet("teamId").(string)
+		containerID := c.MustGet("containerId").(string)
 		requestedFile := c.Param("filepath")
 
 		// Clean the file path to prevent directory traversal attacks.
