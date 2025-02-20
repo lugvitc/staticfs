@@ -1,4 +1,4 @@
-module github.com/celestix/staticfs
+module github.com/lugvitc/staticfs
 
 go 1.23.5
 

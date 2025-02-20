@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/celestix/staticfs/utils"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/lugvitc/staticfs/utils"
 )
 
 func AuthMiddleware(secretKey []byte) gin.HandlerFunc {

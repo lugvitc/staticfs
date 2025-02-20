@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 
 	"encoding/base64"
-	"github.com/celestix/staticfs/middleware"
-	//	"github.com/celestix/staticfs/utils"
+
+	"github.com/lugvitc/staticfs/middleware"
+
+	//	"github.com/lugvitc/staticfs/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
