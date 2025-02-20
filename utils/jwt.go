@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
@@ -13,9 +12,9 @@ type TeamClaims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateJWT(teamId, containerId string, secretKey *ecdsa.PrivateKey) (string, error) {
+func CreateJWT(teamId, containerId string, secretKey []byte) (string, error) {
 	expirationTime := time.Now().Add(time.Hour)
-	claims := jwt.NewWithClaims(jwt.SigningMethodES256, TeamClaims{
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, TeamClaims{
 		Id:          teamId,
 		ContainerId: containerId,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -29,12 +28,12 @@ func CreateJWT(teamId, containerId string, secretKey *ecdsa.PrivateKey) (string,
 	return tokenString, nil
 }
 
-func VerifyJWT(tokenString string, publicKey *ecdsa.PublicKey) (*TeamClaims, error) {
+func VerifyJWT(tokenString string, secretKey []byte) (*TeamClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &TeamClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return publicKey, nil
+		return secretKey, nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error parsing token: %w", err)

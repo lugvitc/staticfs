@@ -1,33 +1,25 @@
 package main
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
+	"encoding/base64"
 	"github.com/celestix/staticfs/middleware"
-	"github.com/celestix/staticfs/utils"
+	//	"github.com/celestix/staticfs/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
-func loadPublicKey() (*ecdsa.PublicKey, error) {
-	pubKeyPEM := os.Getenv("PUBLIC_KEY")
-	if pubKeyPEM == "" {
+func loadSecretKey() ([]byte, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
 		return nil, fmt.Errorf("PUBLIC_KEY environment variable not set")
 	}
-	return utils.DecodePublicKeyFromPEM([]byte(pubKeyPEM))
+	return base64.StdEncoding.DecodeString(secretKey)
 }
-
-// func loadPriKey() (*ecdsa.PrivateKey, error) {
-// 	priKeyPEM := os.Getenv("PRIVATE_KEY")
-// 	if priKeyPEM == "" {
-// 		return nil, fmt.Errorf("PRIVATE_KEY environment variable not set")
-// 	}
-// 	return utils.DecodePrivateKeyFromPEM([]byte(priKeyPEM))
-// }
 
 func main() {
 	err := godotenv.Load()
@@ -36,15 +28,11 @@ func main() {
 	}
 	dataDir := os.Getenv("DATA_DIR")
 	r := gin.Default()
-	pubKey, err := loadPublicKey()
+	secretKey, err := loadSecretKey()
 	if err != nil {
 		log.Fatalf("Error loading public key: %v", err)
 	}
-	//	priKey, err := loadPriKey()
-	//	if err != nil {
-	//		log.Fatalf("Error loading private key: %v", err)
-	//	}
-	r.Use(middleware.AuthMiddleware(pubKey))
+	r.Use(middleware.AuthMiddleware(secretKey))
 	r.GET("/*filepath", func(c *gin.Context) {
 		teamID := c.MustGet("teamId").(string)
 		containerID := c.MustGet("containerId").(string)
@@ -55,7 +43,7 @@ func main() {
 		fmt.Println(fullPath)
 		c.File(fullPath)
 	})
-	//	token, err := utils.CreateJWT("randomteam123", "randomcontainer123", priKey)
+	//	token, err := utils.CreateJWT("randomteam123", "randomcontainer123", secretKey)
 	//	if err != nil {
 	//		log.Fatalf("Failed to generate JWT: %v", err)
 	//	}

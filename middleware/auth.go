@@ -1,13 +1,12 @@
 package middleware
 
 import (
-	"crypto/ecdsa"
 	"github.com/celestix/staticfs/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func AuthMiddleware(publicKey *ecdsa.PublicKey) gin.HandlerFunc {
+func AuthMiddleware(secretKey []byte) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.Query("token")
 		if tokenString == "" {
@@ -15,7 +14,7 @@ func AuthMiddleware(publicKey *ecdsa.PublicKey) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := utils.VerifyJWT(tokenString, publicKey)
+		claims, err := utils.VerifyJWT(tokenString, secretKey)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: " + err.Error()})
 			return
