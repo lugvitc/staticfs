@@ -41,7 +41,7 @@ func main() {
 
 		// Clean the file path to prevent directory traversal attacks.
 		fullPath := filepath.Join(dataDir, teamID, containerID, filepath.Clean(requestedFile))
-		fmt.Println(fullPath)
+		// fmt.Println(fullPath)
 		c.File(fullPath)
 	})
 	//	token, err := utils.CreateJWT("randomteam123", "randomcontainer123", secretKey)
