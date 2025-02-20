@@ -10,7 +10,6 @@ import (
 
 	"github.com/lugvitc/staticfs/middleware"
 
-	//	"github.com/lugvitc/staticfs/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
