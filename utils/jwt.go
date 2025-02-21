@@ -2,8 +2,8 @@ package utils
 
 import (
 	"fmt"
+
 	"github.com/golang-jwt/jwt/v5"
-	"time"
 )
 
 type TeamClaims struct {
@@ -13,13 +13,9 @@ type TeamClaims struct {
 }
 
 func CreateJWT(teamId, containerId string, secretKey []byte) (string, error) {
-	expirationTime := time.Now().Add(time.Hour)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, TeamClaims{
 		Id:          teamId,
 		ContainerId: containerId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
 	})
 	tokenString, err := claims.SignedString(secretKey)
 	if err != nil {
