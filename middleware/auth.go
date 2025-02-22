@@ -9,7 +9,7 @@ import (
 
 func AuthMiddleware(secretKey []byte) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.Query("token")
+		tokenString := c.Param("token")
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
 			return
